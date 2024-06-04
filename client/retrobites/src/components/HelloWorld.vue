@@ -154,7 +154,7 @@
 </template>
 
 <script setup lang="ts">
-import MainHeader from './MainHeader.vue';
+import MainHeader from './MainHeaderLogin.vue';
 
   //
 </script>

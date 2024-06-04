@@ -1,5 +1,6 @@
 import { Request, Router, NextFunction } from "express";
 import { Users } from "../db/schemas/user.js";
+import jwt from 'jsonwebtoken';
 
 const router = Router();
 
@@ -20,7 +21,9 @@ router.post("/login", async (req, res) => {
             throw {status: 404, message: "User not found."};
         }
 
-        res.json(user);
+        const key = process.env.JWT_KEY!;
+        const token = jwt.sign({username: user.username}, key);
+        res.send(token);
     }
     catch(err) {
         console.log(err);

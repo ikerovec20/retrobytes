@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-main>
-      <Login/>
+      <RouterView></RouterView>
     </v-main>
   </v-app>
 </template>
