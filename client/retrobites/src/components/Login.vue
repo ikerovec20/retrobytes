@@ -28,7 +28,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import MainHeader from './MainHeaderLogin.vue';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../stores/userStore';
 
@@ -43,15 +43,25 @@ async function submit() {
         username: username.value,
         password: password.value
     }
+    try {
+        const result = await axios.post("http://localhost:8000/api/login", creds); //should return token to store
+        console.log(result.status);
 
-    const result = await axios.post("http://localhost:8000/api/login", creds); //should return token to store
+        if (typeof result.data !== typeof AxiosError) {
+            const userData = result.data;
+            const store = useUserStore();
+            store.username = username.value;
+            store.token = userData;
+            console.log(userData);
+            router.push("/");
+        }
+        else {
+            console.log("Error");
+        }
 
-    const userData = result.data;
-    const store = useUserStore();
-    store.username = username.value;
-    store.token = userData;
-    console.log(userData);
-    router.push("/");
+    } catch (ex) {
+        console.log(ex);
+    }
 }
 </script>
 
