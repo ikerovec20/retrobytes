@@ -17,9 +17,11 @@ import {createWebHistory, createRouter } from 'vue-router';
 import Login from './components/Login.vue';
 import Home from './components/Home.vue';
 import { createPinia } from 'pinia';
+import RecipeView from './components/RecipeView.vue';
 const routes = [
     {path: '/', component: Home},
-    {path: '/login', component: Login}
+    {path: '/login', component: Login},
+    {path: '/view/:id', component: RecipeView},
 ]
 
 const router = createRouter({

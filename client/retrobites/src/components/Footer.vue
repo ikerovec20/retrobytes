@@ -6,10 +6,9 @@
 
 <style scoped>
 .foot {
-    position: absolute;
+  position: absolute;
   bottom: 0;
   width: 100%;
   height: 2.5rem;
-  margin-bottom: 0;
 }
 </style>

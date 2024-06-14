@@ -13,6 +13,7 @@ declare module 'vue' {
     Login: typeof import('./src/components/Login.vue')['default']
     MainHeader: typeof import('./src/components/MainHeader.vue')['default']
     MainHeaderLogin: typeof import('./src/components/MainHeaderLogin.vue')['default']
+    RecipeView: typeof import('./src/components/RecipeView.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
