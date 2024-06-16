@@ -18,10 +18,12 @@ import Login from './components/Login.vue';
 import Home from './components/Home.vue';
 import { createPinia } from 'pinia';
 import RecipeView from './components/RecipeView.vue';
+import RecipeCreate from './components/RecipeCreate.vue';
 const routes = [
     {path: '/', component: Home},
     {path: '/login', component: Login},
     {path: '/view/:id', component: RecipeView},
+    {path: '/create', component: RecipeCreate}
 ]
 
 const router = createRouter({

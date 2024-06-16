@@ -44,7 +44,7 @@ async function submit() {
         password: password.value
     }
     try {
-        const result = await axios.post("http://localhost:8000/api/login", creds); //should return token to store
+        const result = await axios.post("http://localhost:8000/api/login", creds);
         console.log(result.status);
 
         if (typeof result.data !== typeof AxiosError) {
