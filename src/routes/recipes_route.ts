@@ -13,8 +13,8 @@ router.get("/", async (req, res) => {
         const pageSize = req.query.pagesize || 9;
         const pageIndex = req.query.pageindex || 1;
 
-        const results = await Recipes.find().skip((pageIndex as number - 1) * (pageSize as number));
-
+        const results = await Recipes.find().skip((pageIndex as number - 1) * (pageSize as number)).populate('ingredients', 'ingredient_id');
+        console.log(results[0].ingredients[0]);
         res.json(results);
         return;
     }
@@ -25,16 +25,19 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
     try {
-        const {name, tags, cooking_time, instructions, owner_id, ingredients} = req.body;
-        console.log(ingredients);
+        const {name, tags, cooking_time, instructions, owner_id, ingredients, serves, category, description} = req.body;
+        console.log(category);
         if (!(name && tags && cooking_time && instructions && owner_id && ingredients)) {
             res.status(400).send("All fields are required");
             return;
         }
         const recipe = new Recipes({
             name: name,
+            category: category,
             tags: tags,
             cooking_time: cooking_time,
+            serves: serves,
+            description: description,
             instructions: instructions,
             owner_id: owner_id,
             ingredients: ingredients,

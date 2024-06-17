@@ -52,6 +52,8 @@ async function submit() {
             const store = useUserStore();
             store.username = username.value;
             store.token = userData;
+            localStorage.setItem('username', username.value);
+            localStorage.setItem('token', userData);
             console.log(userData);
             router.push("/");
         }

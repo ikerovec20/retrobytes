@@ -8,5 +8,8 @@ export const useUserStore = defineStore('user', () => {
     const getUsername = computed(() => username.value);
     const getToken = computed(() => token.value);
 
-    return {username, token, getUsername, getToken};
-});
+    const setUsername = (name) => {username.value = name;}
+    const setToken = (token) => {token.value = token;}
+
+    return {username, token, getUsername, setUsername, getToken, setToken};
+}, );

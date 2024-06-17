@@ -12,7 +12,7 @@
                 <v-card style="padding: 12px;">
                     <v-row>
                         <v-col>
-                            <v-text-field label="Recipe Name"></v-text-field>
+                            <v-text-field v-model="name" label="Recipe Name"></v-text-field>
                         </v-col>
                         <v-col>
                             <v-file-input label="Upload Image"></v-file-input>
@@ -20,23 +20,23 @@
                     </v-row>
                     <v-row>
                         <v-col>
-                            <v-select label="Category" :items="['Beef', 'Poultry', 'Veggies', 'Soups', 'Sauces', 'Desserts', 'Pork', 'Seafood', 'Other']"></v-select>
+                            <v-select v-model="category" label="Category" :items="['Beef', 'Poultry', 'Veggies', 'Soups', 'Sauces', 'Desserts', 'Pork', 'Seafood', 'Other']"></v-select>
                         </v-col>
                         <v-col>
-                            <v-combobox label="Tags" multiple chips></v-combobox>
-                        </v-col>
-                    </v-row>
-                    <v-row>
-                        <v-col>
-                            <v-text-field type="number" label="Cooking time (min)"></v-text-field>
-                        </v-col>
-                        <v-col>
-                            <v-text-field type="number" label="Serves"></v-text-field>
+                            <v-combobox v-model="tags" label="Tags" multiple chips></v-combobox>
                         </v-col>
                     </v-row>
                     <v-row>
                         <v-col>
-                            <v-textarea label="Description"></v-textarea>
+                            <v-text-field v-model="cookingTime" type="number" label="Cooking time (min)"></v-text-field>
+                        </v-col>
+                        <v-col>
+                            <v-text-field v-model="serves" type="number" label="Serves"></v-text-field>
+                        </v-col>
+                    </v-row>
+                    <v-row>
+                        <v-col>
+                            <v-textarea v-model="description" label="Description"></v-textarea>
 
                         </v-col>
                     </v-row>
@@ -60,12 +60,12 @@
                     </v-row>
                     <v-row>
                         <v-col>
-                            <v-textarea label="Instructions"></v-textarea>
+                            <v-textarea v-model="instructions" label="Instructions"></v-textarea>
                         </v-col>
                     </v-row>
                     <v-row>
                         <v-col class="text-center">
-                            <v-btn>Post Recipe</v-btn>
+                            <v-btn @click="postRecipe">Post Recipe</v-btn>
                         </v-col>
                     </v-row>
                 </v-card>
@@ -85,11 +85,13 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { ref } from 'vue';
+import { useUserStore } from '../stores/userStore';
+import { jwtDecode } from "jwt-decode";
 
 const name = ref("");
 const image = ref(0);
 const category = ref("");
-const tags = ref("");
+const tags = ref([""]);
 const cookingTime = ref(0);
 const serves = ref(0);
 const description = ref("");
@@ -99,6 +101,7 @@ const ingredients = ref([{amount: 0, name: "", unit: "", id: ""}]);
 const ingredientCount = ref(0);
 const ingredientSuggestion = ref("");
 const ingredient = ref([""]);
+const ingredientId = new Map<string, string>();
 
 function addIngredient() {
     ingredients.value.push({amount: 0, name: "", unit: "", id: ""});
@@ -116,11 +119,39 @@ async function getSimilarIngredients(ing) {
     ingredient.value = [];
     result.data.forEach(el => {
         ingredient.value.push(el.name);
+        ingredientId.set(el.name, el._id);
     });
 }
 
 async function postRecipe() {
+    console.log(tags.value);
+    console.log(ingredientId);
 
+    const token = localStorage.getItem("token");
+
+    const ings: Array<{_id, amount, unit}> = [];
+
+    ingredients.value.forEach(el => {
+        ings.push({_id: ingredientId[el.name], amount: el.amount, unit: el.unit});
+    });
+
+    console.log(category.value);
+    const decoded = jwtDecode(token!);
+    console.log(decoded['id']);
+    const recipe = {
+        name: name.value,
+        tags: tags.value,
+        cooking_time: cookingTime.value,
+        instructions: instructions.value,
+        owner_id: decoded['id'],
+        ingredients: ings,
+        serves: serves.value,
+        category: category.value,
+        description: description.value
+    }
+
+    const result = await axios.post("http://localhost:8000/api/recipes/", recipe);
+    console.log(result);
 }
 
 </script>
