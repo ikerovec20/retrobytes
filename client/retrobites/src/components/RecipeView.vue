@@ -5,7 +5,7 @@
             <v-row>
             <v-col>
                 <v-card class="v-card mx-auto" style="height: 500px">
-                <v-img src="https://cdn.vuetifyjs.com/images/parallax/material.jpg" aspect-ratio="16/9" cover>
+                <v-img :src="image" aspect-ratio="16/9" cover>
                     <v-card-title style="background-color: rgba(55, 55, 55, 0.53);">
                     <h2 >{{ name }}</h2>
                     <h4>Made by: {{ owner }}</h4>
@@ -119,6 +119,7 @@ const ingredients = ref([{name: "", amount: 0, unit: ""}]);
 const avg_rating = ref(0);
 const comments = ref([{}]);
 const saved = ref(false);
+const image = ref("");
 
 const comment = ref("");
 const rating = ref(0);
@@ -140,8 +141,8 @@ owner.value = r.owner_id.username;
 ingredients.value = r.ingredients;
 avg_rating.value = r.avg_rating;
 comments.value = r.comments;
+image.value = r.image;
 saved.value = false;
-console.log(comments.value[0]['user_id']['username']);
 async function postComment() {
     if (comment.value == "") return;
     const token = localStorage.getItem("token");

@@ -13,10 +13,22 @@ router.get("/", async (req, res) => {
     try {
         // const {pages, index} = req.query;
         const pageSize = req.query.pagesize || 9;
-        const pageIndex = req.query.pageindex || 1;
+        const pageIndex = req.query.pageindex || 2;
 
-        const results = await Recipes.find().skip((pageIndex as number - 1) * (pageSize as number));
-        res.json(results);
+        const results = await Recipes.find().skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(9);
+        if (results) {
+            results.forEach((el) => {
+                let avg: number = 0;
+                let sum: number = 0;
+                el.rating.forEach((elem) => {
+                    sum += elem;
+                });
+                el.avg_rating = sum != 0 ? sum / el.rating.length : 0; 
+            });
+        }
+        const random = results.sort(() => Math.random() - 0.5);
+
+        res.json(random);
         return;
     }
     catch (err) {
@@ -48,7 +60,7 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
     try {
-        const {name, tags, cooking_time, instructions, owner_id, ingredients, ing_id, serves, category, description} = req.body;
+        const {name, tags, cooking_time, instructions, owner_id, ingredients, serves, category, description, image} = req.body;
         console.log(category);
         if (!(name && tags && cooking_time && instructions && owner_id && ingredients)) {
             res.status(400).send("All fields are required");
@@ -75,7 +87,8 @@ router.post("/", async (req, res) => {
             rating: [],
             avg_rating: 0,
             comments: [],
-            saves: []
+            saves: [],
+            image: image
         });
 
         await recipe.save();

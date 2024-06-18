@@ -139,6 +139,7 @@ async function postRecipe() {
     console.log(category.value);
     const decoded = jwtDecode(token!);
     console.log(decoded['id']);
+    const image = await axios.get("https://foodish-api.com/api/");
     const recipe = {
         name: name.value,
         tags: tags.value,
@@ -146,10 +147,10 @@ async function postRecipe() {
         instructions: instructions.value,
         owner_id: decoded['id'],
         ingredients: ings,
-        ing_id: ids,
         serves: serves.value,
         category: category.value,
-        description: description.value
+        description: description.value,
+        image: image.data.image
     }
 
     const result = await axios.post("http://localhost:8000/api/recipes/", recipe);
