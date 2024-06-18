@@ -22,6 +22,20 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.get("/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+        console.log(id);
+        const results = await Ingredients.findById(id);
+        console.log(results);
+        res.json(results);
+        return;
+    }
+    catch(err) {
+        console.log(err);
+    }
+});
+
 router.post("/", async (req, res) => {
     try {
         const {name, category} = req.body;

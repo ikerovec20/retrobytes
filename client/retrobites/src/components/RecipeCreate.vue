@@ -129,10 +129,11 @@ async function postRecipe() {
 
     const token = localStorage.getItem("token");
 
-    const ings: Array<{_id, amount, unit}> = [];
-
+    const ings: Array<{name, amount, unit}> = [];
+    const ids: Array<string> = [];
     ingredients.value.forEach(el => {
-        ings.push({_id: ingredientId[el.name], amount: el.amount, unit: el.unit});
+        ings.push({name: el.name, amount: el.amount, unit: el.unit});
+        ids.push(ingredientId[el.name]);
     });
 
     console.log(category.value);
@@ -145,6 +146,7 @@ async function postRecipe() {
         instructions: instructions.value,
         owner_id: decoded['id'],
         ingredients: ings,
+        ing_id: ids,
         serves: serves.value,
         category: category.value,
         description: description.value

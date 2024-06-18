@@ -1,4 +1,20 @@
-import mongoose, { Schema, mongo } from 'mongoose';
+import mongoose, { Document, Schema, Types, mongo } from 'mongoose';
+
+export interface Recipe extends Document {
+    name: string;
+    category: string;
+    tags: string[];
+    cooking_time: number;
+    serves: number;
+    description: string;
+    instructions: string;
+    rating: number[];
+    avg_rating: number;
+    comments: Types.ObjectId[];
+    saves: Types.ObjectId[];
+    owner_id: Types.ObjectId;
+    ingredients: {name: string, amount: number, unit: string}[];
+}
 
 const RecipeSchema = new Schema({
     name: {type: String, default: null, required: true},
@@ -8,16 +24,16 @@ const RecipeSchema = new Schema({
     serves: {type: Number, default: 0},
     description: {type: String, default: null},
     instructions: {type: String, default: null},
+    rating: [{type: Number, default: 0}],
+    avg_rating: {type: Number, default: 0},
     comments: [{type: Schema.Types.ObjectId, ref: "Comment"}],
     saves: [{type: Schema.Types.ObjectId, ref: "User"}],
     owner_id: {type: Schema.Types.ObjectId, ref: "User"},
-    ingredients: [
-        {
-            ingredient_id: {type: Schema.Types.ObjectId, ref: "Ingredient"},
-            amount: {type: Number},
-            unit: {type: String}
-        },
-    ]
+    ingredients: [{
+        name: String,
+        amount: Number,
+        unit: String
+    }]
 })
 
-export const Recipes = mongoose.model("Recipe", RecipeSchema);
+export const Recipes = mongoose.model<Recipe>("Recipe", RecipeSchema);

@@ -1,8 +1,10 @@
 import { Request, Router, NextFunction } from "express";
 import { Recipes } from "../db/schemas/recipe.js";
-import { Comments } from "../db/schemas/comment.js";
-import { Ingredients } from "../db/schemas/ingredient.js";
-import mongoose from 'mongoose';
+import { Comment, Comments } from "../db/schemas/comment.js";
+import { Ingredient, Ingredients } from "../db/schemas/ingredient.js";
+import { IngredientEntry, IngredientEntries } from "../db/schemas/ingredient_entry.js";
+import mongoose, { ObjectId } from 'mongoose';
+import { User } from "../db/schemas/user.js";
 
 const router = Router();
 export default router;
@@ -13,8 +15,7 @@ router.get("/", async (req, res) => {
         const pageSize = req.query.pagesize || 9;
         const pageIndex = req.query.pageindex || 1;
 
-        const results = await Recipes.find().skip((pageIndex as number - 1) * (pageSize as number)).populate('ingredients', 'ingredient_id');
-        console.log(results[0].ingredients[0]);
+        const results = await Recipes.find().skip((pageIndex as number - 1) * (pageSize as number));
         res.json(results);
         return;
     }
@@ -23,14 +24,44 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.get("/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        const results = await Recipes.findById(id).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).populate<{comments: Comment}>({path: 'comments', populate: {path: 'user_id', select: {username: 1}}});
+        console.log(results?.owner_id.username);
+        if (results) {
+            let avg: number = 0;
+            let sum: number = 0;
+            results.rating.forEach((el) => {
+                sum += el;
+            });
+            results.avg_rating = sum != 0 ? sum / results.rating.length : 0; 
+        }
+        res.json(results);
+        return;
+    }
+    catch(err) {
+        console.log(err);
+    }
+});
+
 router.post("/", async (req, res) => {
     try {
-        const {name, tags, cooking_time, instructions, owner_id, ingredients, serves, category, description} = req.body;
+        const {name, tags, cooking_time, instructions, owner_id, ingredients, ing_id, serves, category, description} = req.body;
         console.log(category);
         if (!(name && tags && cooking_time && instructions && owner_id && ingredients)) {
             res.status(400).send("All fields are required");
             return;
         }
+        // const ingIds: Array<ObjectId> = [];
+        // for (let i = 0; i < ingredients.length; i++) {
+        //     const ing = new IngredientEntries({ingredient: ingredients[i].ingredient, amount: ingredients[i].amount, unit: ingredients[i].unit});
+        //     const id = await ing.save();
+        //     console.log(ing);
+        //     ingIds.push(ing._id);
+        // }
+
         const recipe = new Recipes({
             name: name,
             category: category,
@@ -41,6 +72,8 @@ router.post("/", async (req, res) => {
             instructions: instructions,
             owner_id: owner_id,
             ingredients: ingredients,
+            rating: [],
+            avg_rating: 0,
             comments: [],
             saves: []
         });
@@ -83,6 +116,28 @@ router.post("/save", async (req, res) => {
     }
 });
 
+router.post("/rate", async (req, res) => {
+    try {
+        const recipe_id = req.body.recipe_id;
+        const rating = req.body.rating;
+        console.log(recipe_id);
+        const recipe = await Recipes.findById(recipe_id);
+
+        if (recipe == null) {
+            res.status(404).send("Recipe not found");
+            return;
+        }
+
+        recipe.rating.push(rating as number);
+        await recipe.save();
+        // await Recipes.updateOne({recipe});
+        res.status(200).send("Success");
+    }
+    catch (err) {
+        console.log(err);
+    }
+});
+
 router.post("/comment", async (req, res) => {
     try {
         const {user_id, recipe_id, content} = req.body;
@@ -90,8 +145,8 @@ router.post("/comment", async (req, res) => {
         if (!(user_id && recipe_id)) {
             res.status(400).send("Must provide all arguments");
         }
-        const recipe = await Recipes.findById({recipe_id});
-
+        const recipe = await Recipes.findById(recipe_id);
+        console.log(recipe);
         if (recipe == null) {
             res.status(404).send("Recipe not found");
             return;
@@ -104,10 +159,10 @@ router.post("/comment", async (req, res) => {
         });
 
         await newComment.save();
-
+        console.log(newComment);
         recipe.comments.push(newComment._id);
-        // await recipe.save({});
-        await Recipes.updateOne({recipe});
+        await recipe.save();
+        // await Recipes.updateOne({recipe});
         res.status(200).send("Success");
     }
     catch (err) {
