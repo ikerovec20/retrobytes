@@ -4,7 +4,7 @@ import { Comment, Comments } from "../db/schemas/comment.js";
 import { Ingredient, Ingredients } from "../db/schemas/ingredient.js";
 import { IngredientEntry, IngredientEntries } from "../db/schemas/ingredient_entry.js";
 import mongoose, { ObjectId } from 'mongoose';
-import { User } from "../db/schemas/user.js";
+import { User, Users } from "../db/schemas/user.js";
 
 const router = Router();
 export default router;
@@ -12,15 +12,107 @@ export default router;
 router.get("/", async (req, res) => {
     try {
         // const {pages, index} = req.query;
-        const pageSize = req.query.pagesize || 9;
-        const pageIndex = req.query.pageindex || 2;
-
-        const results = await Recipes.find().skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(9);
+        const pageSize = req.query.pageSize ? req.query.pageSize : 8;
+        const pageIndex = req.query.pageIndex ? req.query.pageIndex : 1;
+        console.log(req.query);
+        const results = await Recipes.find().skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(8);
+        // const results = await Recipes.aggregate([ {$sample: {size: 8}}]);
+        // await Users.populate(results, {path: 'owner_id', select: {_id: 1, username: 1}});
         if (results) {
             results.forEach((el) => {
                 let avg: number = 0;
                 let sum: number = 0;
-                el.rating.forEach((elem) => {
+                el.rating.forEach((elem: number) => {
+                    sum += elem;
+                });
+                el.avg_rating = sum != 0 ? sum / el.rating.length : 0; 
+            });
+        }
+        const random = results.sort(() => Math.random() - 0.5);
+
+        res.json(random);
+        return;
+    }
+    catch (err) {
+        console.log(err);
+    }
+});
+
+router.get("/search", async (req, res) => {
+    try {
+        // const {pages, index} = req.query;
+        const pageSize = req.query.pageSize ? req.query.pageSize : 8;
+        const pageIndex = req.query.pageIndex ? req.query.pageIndex : 1;
+        
+        const name = req.query.name as string;
+        const tags = req.query.tags as string[];
+        const category = req.query.category as string[];
+        const cookingTime = req.query.cookingTime as string;
+        const rating = req.query.rating as string;
+        const includeIngredients = req.query.includeIngredients as string[];
+        const ignoreIngredients = req.query.ignoreIngredients as string[];
+        const ingredientExclusive = req.query.ingredientExclusive as string;
+
+        console.log(req.query);
+        
+        // const results = await Recipes.aggregate([ {$sample: {size: 8}}]);
+        // await Users.populate(results, {path: 'owner_id', select: {_id: 1, username: 1}});
+        let result;
+        if (name != undefined && name != "") {
+            result = Recipes.find({ name:  {$regex: new RegExp(name!, "i")}});
+        }
+        else {
+            result = Recipes.find();
+        }
+        if (tags != undefined && tags.length != 0) {
+                result.where("tags").all(tags);
+        }
+        if (category != undefined && category?.length != 0) {
+                result.where("category").in(category);
+        }
+        if (cookingTime != undefined) {
+            const time = parseInt(cookingTime);
+            if (time > 0) {
+                result.where("cooking_time").lte(time);
+            }
+        }
+        if (rating != undefined) {
+            const rate = parseInt(rating);
+            result.where("avg_rating").gte(rate);
+        }
+        if (includeIngredients != undefined && includeIngredients.length > 0) {
+                
+                if (ingredientExclusive == "true") {//todo: fix this
+                    result.where({$and: [
+                    {
+                        "ingredients.name": {$all: includeIngredients}
+                    },
+                    {
+                        "ingredients": {$not: {
+                            $elemMatch: {
+                                $nin: {includeIngredients}
+                            }
+                        }}
+                    }
+                    ]});
+                }
+                else {
+                    result.where("ingredients.name").all(includeIngredients);
+                }
+        }
+        if (ignoreIngredients != undefined && ingredientExclusive == "false") {
+            if (ignoreIngredients.length > 0) {
+                result.where("ingredients.name").nin(ignoreIngredients);
+            }
+        }
+
+        const results = await result.skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(8);
+
+        if (results) {
+            results.forEach((el) => {
+                let avg: number = 0;
+                let sum: number = 0;
+                el.rating.forEach((elem: number) => {
                     sum += elem;
                 });
                 el.avg_rating = sum != 0 ? sum / el.rating.length : 0; 
@@ -164,10 +256,11 @@ router.post("/comment", async (req, res) => {
             res.status(404).send("Recipe not found");
             return;
         }
-
+        const date = new Date();
         const newComment = new Comments({
             recipe_id: recipe_id,
             user_id: user_id,
+            timestamp: date.toDateString(),
             content: content
         });
 

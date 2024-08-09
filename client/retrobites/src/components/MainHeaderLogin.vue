@@ -1,6 +1,6 @@
 <template>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
 <link href="https://fonts.googleapis.com/css2?family=Bad+Script&family=Caveat:wght@400..700&family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Mr+Dafoe&family=Neonderthaw&display=swap" rel="stylesheet">
     <v-container>
         <v-app-bar class="header-title">

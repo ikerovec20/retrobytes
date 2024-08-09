@@ -14,6 +14,7 @@ declare module 'vue' {
     MainHeader: typeof import('./src/components/MainHeader.vue')['default']
     MainHeaderLogin: typeof import('./src/components/MainHeaderLogin.vue')['default']
     RecipeCreate: typeof import('./src/components/RecipeCreate.vue')['default']
+    RecipeSearch: typeof import('./src/components/RecipeSearch.vue')['default']
     RecipeView: typeof import('./src/components/RecipeView.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

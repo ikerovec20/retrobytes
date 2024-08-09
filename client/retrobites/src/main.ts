@@ -14,16 +14,18 @@ import App from './App.vue'
 import { createApp } from 'vue'
 
 import {createWebHistory, createRouter } from 'vue-router';
+import { createPinia } from 'pinia';
 import Login from './components/Login.vue';
 import Home from './components/Home.vue';
-import { createPinia } from 'pinia';
 import RecipeView from './components/RecipeView.vue';
 import RecipeCreate from './components/RecipeCreate.vue';
+import RecipeSearch from './components/RecipeSearch.vue';
 const routes = [
     {path: '/', component: Home},
     {path: '/login', component: Login},
     {path: '/view/:id', component: RecipeView},
-    {path: '/create', component: RecipeCreate}
+    {path: '/create', component: RecipeCreate},
+    {path: '/search', component: RecipeSearch}
 ]
 
 const router = createRouter({

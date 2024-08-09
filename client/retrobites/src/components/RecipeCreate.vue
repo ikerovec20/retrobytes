@@ -20,7 +20,7 @@
                     </v-row>
                     <v-row>
                         <v-col>
-                            <v-select v-model="category" label="Category" :items="['Beef', 'Poultry', 'Veggies', 'Soups', 'Sauces', 'Desserts', 'Pork', 'Seafood', 'Other']"></v-select>
+                            <v-select v-model="category" label="Category" :items="categories"></v-select>
                         </v-col>
                         <v-col>
                             <v-combobox v-model="tags" label="Tags" multiple chips></v-combobox>
@@ -49,7 +49,7 @@
                     </v-row>
                     <v-row v-for="item in ingredients">
                             <v-col>
-                                <v-text-field v-model="item.amount" type="number" label="Amount"></v-text-field>
+                                <v-text-field min="1" v-model="item.amount" type="number" label="Amount"></v-text-field>
                             </v-col>
                             <v-col>
                                 <v-combobox auto-select-first label="Ingredient" v-model="item.name" @input="getSimilarIngredients(item.name)" :items="ingredient"></v-combobox>
@@ -87,24 +87,25 @@ import axios from 'axios';
 import { ref } from 'vue';
 import { useUserStore } from '../stores/userStore';
 import { jwtDecode } from "jwt-decode";
+import { categories } from '../categories';
 
 const name = ref("");
 const image = ref(0);
 const category = ref("");
-const tags = ref([""]);
+const tags = ref([]);
 const cookingTime = ref(0);
 const serves = ref(0);
 const description = ref("");
 const instructions = ref("");
 
-const ingredients = ref([{amount: 0, name: "", unit: "", id: ""}]);
+const ingredients = ref([{amount: 1, name: "", unit: "", id: ""}]);
 const ingredientCount = ref(0);
 const ingredientSuggestion = ref("");
 const ingredient = ref([""]);
 const ingredientId = new Map<string, string>();
 
 function addIngredient() {
-    ingredients.value.push({amount: 0, name: "", unit: "", id: ""});
+    ingredients.value.push({amount: 1, name: "", unit: "", id: ""});
 }
 function removeIngredient() {
     ingredients.value.pop();

@@ -8,7 +8,7 @@
                 <v-img :src="image" aspect-ratio="16/9" cover>
                     <v-card-title style="background-color: rgba(55, 55, 55, 0.53);">
                     <h2 >{{ name }}</h2>
-                    <h4>Made by: {{ owner }}</h4>
+                    <h5>{{ owner }}</h5>
                     <v-rating v-model="avg_rating" readonly hover density="comfortable"></v-rating>
                 </v-card-title>
                 <v-card-actions class="" style="background-color: rgba(55, 55, 55, 0.53);">
@@ -83,7 +83,10 @@
         <v-row v-for="com in comments">
             <v-col>
                 <v-card class="fill-height">
-                <v-card-title>{{ com['user_id']['username'] }}</v-card-title>
+                <v-card-title>
+                    <p>{{ com['user_id']['username'] }}<p style="float: right">{{ com['timestamp'] }}</p></p>
+                    
+                </v-card-title>
                 <v-card-text>
                     {{ com['content'] }}
                 </v-card-text>
