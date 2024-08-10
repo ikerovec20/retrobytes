@@ -64,12 +64,15 @@ router.get("/search", async (req, res) => {
         else {
             result = Recipes.find();
         }
+        
         if (tags != undefined && tags.length != 0) {
                 result.where("tags").all(tags);
         }
+
         if (category != undefined && category?.length != 0) {
                 result.where("category").in(category);
         }
+
         if (cookingTime != undefined) {
             const time = parseInt(cookingTime);
             if (time > 0) {
@@ -82,7 +85,7 @@ router.get("/search", async (req, res) => {
         }
         if (includeIngredients != undefined && includeIngredients.length > 0) {
                 
-                if (ingredientExclusive == "true") {//todo: fix this
+                if (ingredientExclusive == "true") {
                     result.where({$and: [
                     {
                         "ingredients.name": {$all: includeIngredients}
@@ -90,7 +93,9 @@ router.get("/search", async (req, res) => {
                     {
                         "ingredients": {$not: {
                             $elemMatch: {
-                                $nin: {includeIngredients}
+                                "name": {
+                                    $nin: includeIngredients
+                                }
                             }
                         }}
                     }
@@ -108,16 +113,16 @@ router.get("/search", async (req, res) => {
 
         const results = await result.skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(8);
 
-        if (results) {
-            results.forEach((el) => {
-                let avg: number = 0;
-                let sum: number = 0;
-                el.rating.forEach((elem: number) => {
-                    sum += elem;
-                });
-                el.avg_rating = sum != 0 ? sum / el.rating.length : 0; 
-            });
-        }
+        // if (results) {
+        //     results.forEach((el) => {
+        //         let avg: number = 0;
+        //         let sum: number = 0;
+        //         el.rating.forEach((elem: number) => {
+        //             sum += elem;
+        //         });
+        //         el.avg_rating = sum != 0 ? sum / el.rating.length : 0; 
+        //     });
+        // }
         const random = results.sort(() => Math.random() - 0.5);
 
         res.json(random);
@@ -134,14 +139,13 @@ router.get("/:id", async (req, res) => {
 
         const results = await Recipes.findById(id).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).populate<{comments: Comment}>({path: 'comments', populate: {path: 'user_id', select: {username: 1}}});
         console.log(results?.owner_id.username);
-        if (results) {
-            let avg: number = 0;
-            let sum: number = 0;
-            results.rating.forEach((el) => {
-                sum += el;
-            });
-            results.avg_rating = sum != 0 ? sum / results.rating.length : 0; 
-        }
+        // if (results) {
+        //     let sum: number = 0;
+        //     results.rating.forEach((el) => {
+        //         sum += el;
+        //     });
+        //     results.avg_rating = sum != 0 ? sum / results.rating.length : 0; 
+        // }
         res.json(results);
         return;
     }
@@ -234,7 +238,16 @@ router.post("/rate", async (req, res) => {
         }
 
         recipe.rating.push(rating as number);
+
+            let sum: number = 0;
+            recipe.rating.forEach((el) => {
+                sum += el;
+            });
+            recipe.avg_rating = sum != 0 ? sum / recipe.rating.length : 0; 
+
         await recipe.save();
+
+
         // await Recipes.updateOne({recipe});
         res.status(200).send("Success");
     }

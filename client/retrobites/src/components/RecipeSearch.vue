@@ -116,7 +116,7 @@ async function searchRecipes() {
         ignoreIngredients: ignoreIngredients.value,
         ingredientExclusive: ingredientExclusive.value
     };
-    console.log(query);
+    // console.log(query);
     const res = await axios.get("http://localhost:8000/api/recipes/search", {params: query});
     console.log(res.data);
 }
