@@ -216,8 +216,11 @@ router.post("/save", async (req, res) => {
             return;
         }
         recipe.saves.push(user_id);
+        // await recipe.save();
         await recipe.save();
-        // await Recipes.updateOne({recipe});
+        await recipe.updateOne([{$set: {
+            save_count: {$size: "$saves"}
+        }}])
         res.status(200).send("Success");
     }
     catch (err) {
@@ -225,7 +228,7 @@ router.post("/save", async (req, res) => {
     }
 });
 
-router.post("/rate", async (req, res) => {
+router.post("/rate", async (req, res) => {//USER STATISTICS ON PROFILE PAGE
     try {
         const recipe_id = req.body.recipe_id;
         const rating = req.body.rating;
@@ -238,17 +241,12 @@ router.post("/rate", async (req, res) => {
         }
 
         recipe.rating.push(rating as number);
-
-            let sum: number = 0;
-            recipe.rating.forEach((el) => {
-                sum += el;
-            });
-            recipe.avg_rating = sum != 0 ? sum / recipe.rating.length : 0; 
-
         await recipe.save();
 
-
-        // await Recipes.updateOne({recipe});
+    await recipe.updateOne([{$set: {
+        avg_rating: {$avg: "$rating"}
+    }}]);
+    // await recipe.save();
         res.status(200).send("Success");
     }
     catch (err) {
@@ -283,6 +281,40 @@ router.post("/comment", async (req, res) => {
         await recipe.save();
         // await Recipes.updateOne({recipe});
         res.status(200).send("Success");
+    }
+    catch (err) {
+        console.log(err);
+    }
+});
+
+router.get("/user/:id", async (req, res) => {
+    try {
+        const user_id = req.params.id;
+        console.log(user_id);
+        if (!(user_id)) {
+            res.status(400).send("Must provide user id");
+        }
+    
+        const recipes = await Recipes.find({owner_id: user_id}).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).populate<{comments: Comment}>({path: 'comments', populate: {path: 'user_id', select: {username: 1}}});
+        res.json(recipes);
+        return;
+    }
+    catch (err) {
+        console.log(err);
+    }
+});
+
+router.get("/saved/:id", async (req, res) => {
+    try {
+        const user_id = req.params.id;
+        console.log(user_id);
+        if (!(user_id)) {
+            res.status(400).send("Must provide user id");
+        }
+    
+        const recipes = await Recipes.find({saves: user_id}).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).populate<{comments: Comment}>({path: 'comments', populate: {path: 'user_id', select: {username: 1}}});
+        res.json(recipes);
+        return;
     }
     catch (err) {
         console.log(err);

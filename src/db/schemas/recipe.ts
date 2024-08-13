@@ -12,6 +12,7 @@ export interface Recipe extends Document {
     avg_rating: number;
     comments: Types.ObjectId[];
     saves: Types.ObjectId[];
+    save_count: number,
     owner_id: Types.ObjectId;
     ingredients: {name: string, amount: number, unit: string}[];
     image: string;
@@ -29,6 +30,7 @@ const RecipeSchema = new Schema({
     avg_rating: {type: Number, default: 0},
     comments: [{type: Schema.Types.ObjectId, ref: "Comment"}],
     saves: [{type: Schema.Types.ObjectId, ref: "User"}],
+    save_count: {type: Number, default: 0},
     owner_id: {type: Schema.Types.ObjectId, ref: "User"},
     ingredients: [{
         name: String,

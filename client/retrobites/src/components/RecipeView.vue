@@ -1,6 +1,6 @@
 <template>
     <MainHeader></MainHeader>
-    <v-container>
+    <v-container style="margin: 24px 0px 24px 0px">
         <v-card>
             <v-row>
             <v-col>
@@ -146,6 +146,9 @@ avg_rating.value = r.avg_rating;
 comments.value = r.comments;
 image.value = r.image;
 saved.value = false;
+
+comments.value.reverse();
+
 async function postComment() {
     if (comment.value == "") return;
     const token = localStorage.getItem("token");

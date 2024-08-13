@@ -20,12 +20,14 @@ import Home from './components/Home.vue';
 import RecipeView from './components/RecipeView.vue';
 import RecipeCreate from './components/RecipeCreate.vue';
 import RecipeSearch from './components/RecipeSearch.vue';
+import Profile from './components/Profile.vue';
 const routes = [
     {path: '/', component: Home},
     {path: '/login', component: Login},
     {path: '/view/:id', component: RecipeView},
     {path: '/create', component: RecipeCreate},
-    {path: '/search', component: RecipeSearch}
+    {path: '/search', component: RecipeSearch},
+    {path: '/profile/:id', component: Profile}
 ]
 
 const router = createRouter({
