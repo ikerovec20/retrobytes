@@ -289,13 +289,15 @@ router.post("/comment", async (req, res) => {
 
 router.get("/user/:id", async (req, res) => {
     try {
+        const pageSize = req.query.pageSize ? req.query.pageSize : 6;
+        const pageIndex = req.query.pageIndex ? req.query.pageIndex : 1;
         const user_id = req.params.id;
         console.log(user_id);
         if (!(user_id)) {
             res.status(400).send("Must provide user id");
         }
     
-        const recipes = await Recipes.find({owner_id: user_id}).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).populate<{comments: Comment}>({path: 'comments', populate: {path: 'user_id', select: {username: 1}}});
+        const recipes = await Recipes.find({owner_id: user_id}).skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).populate<{comments: Comment}>({path: 'comments', populate: {path: 'user_id', select: {username: 1}}}).limit(pageSize as number);
         res.json(recipes);
         return;
     }
@@ -306,13 +308,15 @@ router.get("/user/:id", async (req, res) => {
 
 router.get("/saved/:id", async (req, res) => {
     try {
+        const pageSize = req.query.pageSize ? req.query.pageSize : 6;
+        const pageIndex = req.query.pageIndex ? req.query.pageIndex : 1;
         const user_id = req.params.id;
         console.log(user_id);
         if (!(user_id)) {
             res.status(400).send("Must provide user id");
         }
     
-        const recipes = await Recipes.find({saves: user_id}).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).populate<{comments: Comment}>({path: 'comments', populate: {path: 'user_id', select: {username: 1}}});
+        const recipes = await Recipes.find({saves: user_id}).skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).populate<{comments: Comment}>({path: 'comments', populate: {path: 'user_id', select: {username: 1}}}).limit(pageSize as number);
         res.json(recipes);
         return;
     }
