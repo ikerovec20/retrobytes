@@ -5,18 +5,19 @@
         <v-row>
             <v-col class="align-center">
                 <v-card-title style="vertical-align: middle;">
-                    <v-icon class="text-h1" style="vertical-align: middle" icon="mdi-account"></v-icon><span style="vertical-align: middle" class="vertical-align-middle text-h2 text-center">User</span>
+                    <v-icon class="text-h1" style="vertical-align: middle" icon="mdi-account"></v-icon><span style="vertical-align: middle" class="vertical-align-middle text-h2 text-center">{{ stats['username'] }}</span>
                     <p class="text-subtitle-1">Member since: </p>
-                    <p class="text-subtitle-1">Uploaded recipes: </p>
+                    <p class="text-subtitle-1">Uploaded recipes: {{ stats['recipe_count'] }}</p>
+                    <p class="text-subtitle-1">Comments made: {{ stats['comments_made'] }}</p>
                 </v-card-title>
             </v-col>
             <v-col>
                 <v-card-text>
                     <p class="text-h4">Profile Statistics</p>
                     <div class="text-h6" style="vertical-align: middle;">
-                        <p><v-icon icon="mdi-star"></v-icon> Average recipe ratings:</p>
-                        <p><v-icon icon="mdi-heart"></v-icon> Total recipe saves:</p>
-                        <p><v-icon icon="mdi-heart-circle"></v-icon> Average saves per recipe:</p>
+                        <p><v-icon icon="mdi-star"></v-icon> Average recipe ratings: <v-rating style="vertical-align: middle;" half-increments v-model="stats['avg_ratings']" readonly hover density="comfortable"></v-rating></p>
+                        <p><v-icon icon="mdi-heart"></v-icon> Total recipe saves: {{ stats['total_saves'] }}</p>
+                        <p><v-icon icon="mdi-heart-circle"></v-icon> Average saves per recipe: {{ stats['average_saves'] }}</p>
                     </div>
                 </v-card-text>
             </v-col>
@@ -24,7 +25,7 @@
     </v-card>
         <v-row>
             <v-col>
-                <h1>Recipes made by User</h1>
+                <h1>Recipes made by {{ stats['username'] }}</h1>
             </v-col>
         </v-row>
         <v-row>
@@ -53,7 +54,7 @@
     </v-row>
         <v-row>
             <v-col>
-                <h1>Recipes saved by User</h1>
+                <h1>Recipes saved by {{ stats['username'] }}</h1>
             </v-col>
         </v-row>
         <v-row class="justify-center">
@@ -118,6 +119,11 @@ const savedRecipes = ref([{}]);
 
 const userResults = await axios.get("http://localhost:8000/api/recipes/user/"+id);
 const savedResults = await axios.get("http://localhost:8000/api/recipes/saved/"+id);
+const userStats = await axios.get("http://localhost:8000/api/user/stats/"+id);
+console.log(userStats);
+const stats = ref({});
+stats.value = userStats.data;
+console.log(userStats);
 userRecipes.value = userResults.data;
 savedRecipes.value = savedResults.data;
 console.log(userRecipes.value);

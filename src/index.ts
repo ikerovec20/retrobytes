@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import AuthRouter from './routes/auth_route.js';
 import IngredientRouter from './routes/ingredients_route.js';
 import RecipeRouter from './routes/recipes_route.js';
+import UserRouter from './routes/user_route.js';
 dotenv.config();
 
 const app = express();
@@ -20,6 +21,7 @@ const port = process.env.PORT || 8000;
 app.use("/api", AuthRouter);
 app.use("/api/ingredients", IngredientRouter);
 app.use("/api/recipes", RecipeRouter);
+app.use("/api/user", UserRouter);
 
 
 app.get('/', (req, res) => {
