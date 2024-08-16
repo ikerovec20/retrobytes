@@ -2,7 +2,6 @@ import { Request, Router, NextFunction } from "express";
 import { Recipes } from "../db/schemas/recipe.js";
 import { Comment, Comments } from "../db/schemas/comment.js";
 import { Ingredient, Ingredients } from "../db/schemas/ingredient.js";
-import { IngredientEntry, IngredientEntries } from "../db/schemas/ingredient_entry.js";
 import mongoose, { ObjectId } from 'mongoose';
 import { User, Users } from "../db/schemas/user.js";
 
@@ -18,19 +17,44 @@ router.get("/", async (req, res) => {
         const results = await Recipes.find().skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(8);
         // const results = await Recipes.aggregate([ {$sample: {size: 8}}]);
         // await Users.populate(results, {path: 'owner_id', select: {_id: 1, username: 1}});
-        if (results) {
-            results.forEach((el) => {
-                let avg: number = 0;
-                let sum: number = 0;
-                el.rating.forEach((elem: number) => {
-                    sum += elem;
-                });
-                el.avg_rating = sum != 0 ? sum / el.rating.length : 0; 
-            });
-        }
+
         const random = results.sort(() => Math.random() - 0.5);
 
         res.json(random);
+        return;
+    }
+    catch (err) {
+        console.log(err);
+    }
+});
+
+router.get("/featured", async (req, res) => {
+    try {
+        // const results = await Recipes.find().skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(8);
+
+        const date = new Date();
+        date.setDate(date.getDate() - 3);
+        const result = await Recipes.find({created: {$gte: date}}).sort({avg_rating: -1}).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(1);
+
+
+        res.json(result);
+        return;
+    }
+    catch (err) {
+        console.log(err);
+    }
+});
+
+router.get("/similar", async (req, res) => {
+    try {
+        // const results = await Recipes.find().skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(8);
+
+        const date = new Date();
+        date.setDate(date.getDate() - 3);
+        const result = await Recipes.find({created: {$gte: date}}).sort({avg_rating: -1}).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(1);
+
+
+        res.json(result);
         return;
     }
     catch (err) {
@@ -111,7 +135,7 @@ router.get("/search", async (req, res) => {
             }
         }
 
-        const results = await result.skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(8);
+        const results = await result.skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(pageSize as number);
 
         // if (results) {
         //     results.forEach((el) => {
@@ -212,7 +236,12 @@ router.post("/save", async (req, res) => {
             return;
         }
         if (recipe.saves.includes(user_id)) {
-            res.status(400).send("Already saved");
+            recipe.saves.splice(recipe.saves.indexOf(user_id), 1);
+            await recipe.save();
+            await recipe.updateOne([{$set: {
+                save_count: {$size: "$saves"}
+            }}])
+            res.status(200).send("Removed from saves");
             return;
         }
         recipe.saves.push(user_id);
@@ -228,7 +257,7 @@ router.post("/save", async (req, res) => {
     }
 });
 
-router.post("/rate", async (req, res) => {//USER STATISTICS ON PROFILE PAGE
+router.post("/rate", async (req, res) => {
     try {
         const recipe_id = req.body.recipe_id;
         const rating = req.body.rating;
@@ -267,11 +296,9 @@ router.post("/comment", async (req, res) => {
             res.status(404).send("Recipe not found");
             return;
         }
-        const date = new Date();
         const newComment = new Comments({
             recipe_id: recipe_id,
             user_id: user_id,
-            timestamp: date.toDateString(),
             content: content
         });
 

@@ -94,6 +94,9 @@
             </v-col>
         </v-row>
     </v-container>
+    <v-snackbar v-model="snackbar" timeout="2000">
+        {{ snackbarText }}
+    </v-snackbar>
 </template>
 
 <style>
@@ -106,7 +109,6 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-import { convertToObject } from 'typescript';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -147,6 +149,9 @@ comments.value = r.comments;
 image.value = r.image;
 saved.value = false;
 
+const snackbar = ref(false);
+const snackbarText = ref("");
+
 comments.value.reverse();
 
 async function postComment() {
@@ -160,6 +165,13 @@ async function saveRecipe() {
     const token = localStorage.getItem("token");
     const decoded = jwtDecode(token!);
     const result = await axios.post("http://localhost:8000/api/recipes/save", {user_id: decoded['id'], recipe_id: id});
+    if (result.data == "Success") {
+        snackbarText.value = "Recipe saved.";
+    }
+    else {
+        snackbarText.value = "Removed from saves.";
+    }
+    snackbar.value = true;
 }
 
 async function rateRecipe() {

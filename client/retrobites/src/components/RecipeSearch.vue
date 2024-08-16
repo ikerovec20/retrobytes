@@ -34,7 +34,7 @@
                 </v-card-text>
                 <v-card-actions class="" style="background-color: rgba(55, 55, 55, 0.53);">
                     <v-btn @click="viewRecipe(item['_id'])" variant="text" class="text-lg-right">Open</v-btn>
-                    <v-btn @click="viewRecipe(item['_id'])" variant="text" class="text-lg-right">Save</v-btn>
+                    <v-btn @click="saveRecipe(item['_id'])" variant="text" class="text-lg-right">Save</v-btn>
                     <v-btn append-icon="mdi-carrot" @click="checkIngredients(item['ingredients'])" variant="text" class="text-lg-right">Check</v-btn>
                 </v-card-actions>
                 </v-img>
@@ -45,7 +45,7 @@
     <v-row>
         <v-col class="text-center">
             <v-btn icon="mdi-arrow-left-bold" style="margin: 12px 12px 24px 12px" :disabled="pageIndex == 1" @click="changePageIndex(-1)"></v-btn>
-            <v-btn icon="mdi-arrow-right-bold" style="margin: 12px 12px 24px 12px" @click="changePageIndex(1)"></v-btn>
+            <v-btn icon="mdi-arrow-right-bold" :disabled="recipes.length < 8" style="margin: 12px 12px 24px 12px" @click="changePageIndex(1)"></v-btn>
         </v-col>
     </v-row>
         </div>
@@ -107,6 +107,9 @@
     </v-card>
 </template>
 </v-dialog>
+<v-snackbar v-model="snackbar" timeout="2000">
+        {{ snackbarText }}
+    </v-snackbar>
     </template>
 
 <script setup lang="ts">
@@ -116,6 +119,7 @@ import { useRouter } from 'vue-router';
 import MainHeader from './MainHeader.vue';
 import axios from 'axios';
 import { categories } from '../categories';
+import { jwtDecode } from 'jwt-decode';
 
 const filterDialog = ref(false);
 const ingredientDialog = ref(false);
@@ -137,6 +141,22 @@ const ingredientExclusive = ref(false);
 
 const recipes = ref([{}]);
 const searched = ref(false);
+
+const snackbar = ref(false);
+const snackbarText = ref("");
+
+async function saveRecipe(id) {
+    const token = localStorage.getItem("token");
+    const decoded = jwtDecode(token!);
+    const result = await axios.post("http://localhost:8000/api/recipes/save", {user_id: decoded['id'], recipe_id: id});
+    if (result.data == "Success") {
+        snackbarText.value = "Recipe saved.";
+    }
+    else {
+        snackbarText.value = "Removed from saves.";
+    }
+    snackbar.value = true;
+}
 
 async function getSimilarIngredients(ing) {
     if (ing == undefined) return;

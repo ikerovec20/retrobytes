@@ -49,7 +49,7 @@
         <v-row>
         <v-col class="text-center">
             <v-btn icon="mdi-arrow-left-bold" style="margin: 12px 12px 24px 12px" :disabled="pageIndexUser == 1" @click="changePageIndexUser(-1)"></v-btn>
-            <v-btn icon="mdi-arrow-right-bold" style="margin: 12px 12px 24px 12px" @click="changePageIndexUser(1)"></v-btn>
+            <v-btn icon="mdi-arrow-right-bold" :disabled="userRecipes.length < 6" style="margin: 12px 12px 24px 12px" @click="changePageIndexUser(1)"></v-btn>
         </v-col>
     </v-row>
         <v-row>
@@ -69,7 +69,7 @@
                 </v-card-text>
                 <v-card-actions class="" style="background-color: rgba(55, 55, 55, 0.53);">
                     <v-btn @click="viewRecipe(item['_id'])" variant="text" class="text-lg-right">Open</v-btn>
-                    <v-btn v-if="id == userId" @click="viewRecipe(item['_id'])" variant="text" class="text-lg-right">Remove</v-btn>
+                    <v-btn v-if="id == userId" @click="saveRecipe(item['_id'])" variant="text" class="text-lg-right">Remove</v-btn>
                     <v-btn append-icon="mdi-carrot" @click="checkIngredients(item['ingredients'])" variant="text" class="text-lg-right">Check</v-btn>
                 </v-card-actions>
                 </v-img>
@@ -79,7 +79,7 @@
     <v-row>
         <v-col class="text-center">
             <v-btn icon="mdi-arrow-left-bold" style="margin: 12px 12px 24px 12px" :disabled="pageIndexSaved == 1" @click="changePageIndexSaved(-1)"></v-btn>
-            <v-btn icon="mdi-arrow-right-bold" style="margin: 12px 12px 24px 12px" @click="changePageIndexSaved(1)"></v-btn>
+            <v-btn icon="mdi-arrow-right-bold" :disabled="savedRecipes.length < 6" style="margin: 12px 12px 24px 12px" @click="changePageIndexSaved(1)"></v-btn>
         </v-col>
     </v-row>
     </v-container>
@@ -127,6 +127,22 @@ console.log(userStats);
 userRecipes.value = userResults.data;
 savedRecipes.value = savedResults.data;
 console.log(userRecipes.value);
+
+const snackbar = ref(false);
+const snackbarText = ref("");
+
+async function saveRecipe(id) {
+    const token = localStorage.getItem("token");
+    const decoded = jwtDecode(token!);
+    const result = await axios.post("http://localhost:8000/api/recipes/save", {user_id: decoded['id'], recipe_id: id});
+    if (result.data == "Success") {
+        snackbarText.value = "Recipe saved.";
+    }
+    else {
+        snackbarText.value = "Removed from saves.";
+    }
+    snackbar.value = true;
+}
 
 function viewRecipe(id: string) {
    router.push("/view/"+id);

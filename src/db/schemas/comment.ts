@@ -10,7 +10,7 @@ export interface Comment extends Document {
 const CommentSchema = new Schema({
     user_id: {type: Schema.Types.ObjectId, ref: "User"},
     recipe_id: {type: Schema.Types.ObjectId, ref: "Recipe"},
-    timestamp: {type: String},
+    timestamp: {type: Date, default: new Date()},
     content: {type: String}
 })
 

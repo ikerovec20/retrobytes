@@ -16,6 +16,7 @@ export interface Recipe extends Document {
     owner_id: Types.ObjectId;
     ingredients: {name: string, amount: number, unit: string}[];
     image: string;
+    created: Date;
 }
 
 const RecipeSchema = new Schema({
@@ -37,7 +38,8 @@ const RecipeSchema = new Schema({
         amount: Number,
         unit: String
     }],
-    image: {type: String}
+    image: {type: String},
+    created: {type: Date, default: new Date()}
 })
 
 export const Recipes = mongoose.model<Recipe>("Recipe", RecipeSchema);

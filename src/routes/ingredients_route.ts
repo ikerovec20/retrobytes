@@ -53,24 +53,6 @@ router.post("/", async (req, res) => {
     }
 });
 
-router.get("/cat/:category", async (req, res) => {
-    try {
-        const category = req.params.category;
-        const pageSize = req.query.pagesize || 9;
-        const pageIndex = req.query.pageindex || 1;
-        console.log(category);
-        
-        if (category != undefined) {
-            const results = await Ingredients.find({category: {$regex: new RegExp(category!, "i")}}).skip((pageIndex as number - 1) * (pageSize as number));
-            res.json(results);
-            return;
-        }
-        res.status(404).send("Must supply category name");
-    }
-    catch (err) {
-        console.log(err);
-    }
-});
 
 router.get("/name/:name", async (req, res) => {
     try {
