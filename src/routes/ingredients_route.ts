@@ -61,7 +61,7 @@ router.get("/name/:name", async (req, res) => {
         const pageIndex = req.query.pageindex || 1;
         
         if (name != undefined) {
-            const results = await Ingredients.find({name: {$regex: new RegExp(name!, "i")}}).skip((pageIndex as number - 1) * (pageSize as number));
+            const results = await Ingredients.find({name: {$regex: new RegExp(name!, "i")}}).skip((pageIndex as number - 1) * (pageSize as number)).limit(5);
             res.json(results);
             return;
         }
