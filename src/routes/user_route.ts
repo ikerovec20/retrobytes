@@ -51,14 +51,14 @@ const averageSaves = await Recipes.aggregate([{
     }
 }
 ]);
-    console.log(averageRatings);
         const result = {
             username: user?.username,
+            joined: user?.joined,
             recipe_count: uploadedRecipeCount,
             comments_made: commentsMade,
-            avg_ratings: averageRatings[0].avg_rating,
-            total_saves: totalSaves[0].total_saves,
-            average_saves: averageSaves[0].avg_saves
+            avg_ratings: averageRatings[0]?.avg_rating == undefined ? 0 : averageRatings[0].avg_rating,
+            total_saves: totalSaves[0]?.total_saves,
+            average_saves: averageSaves[0]?.avg_saves ?? 0
         }
         res.json(result);
     }

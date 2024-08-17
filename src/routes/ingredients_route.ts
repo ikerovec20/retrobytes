@@ -38,13 +38,13 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
     try {
-        const {name, category} = req.body;
+        const {name} = req.body;
 
-        if (!(name || category)) {
-            res.status(400).send("Both fields are required");
+        if (!(name)) {
+            res.status(400).send("Name is required.");
         }
-        await Ingredients.findOneAndUpdate({name: name, category: category}, {name: name, category: category}, {upsert: true, new: true}).exec();
-        const toReturn = await Ingredients.findOne({name: name, category: category});
+        await Ingredients.findOneAndUpdate({name: name}, {name: name}, {upsert: true, new: true}).exec();
+        const toReturn = await Ingredients.findOne({name: name});
         res.json(toReturn);
         return;
     }

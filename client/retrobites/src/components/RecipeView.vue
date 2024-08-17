@@ -7,9 +7,8 @@
                 <v-card class="v-card mx-auto" style="height: 500px">
                 <v-img :src="image" aspect-ratio="16/9" cover>
                     <v-card-title style="background-color: rgba(55, 55, 55, 0.53);">
-                    <h2 >{{ name }}</h2>
-                    <h5>{{ owner }}</h5>
-                    <v-rating v-model="avg_rating" readonly hover density="comfortable"></v-rating>
+                    <h2 >{{ name }} <v-rating style="float: right;"v-model="avg_rating" readonly hover density="comfortable"></v-rating></h2>
+                    <p><router-link :to="'/profile/'+_id"><span style="margin-right: 8px;"><v-icon icon="mdi-account"></v-icon> {{ owner }}</span></router-link>  <span style="margin-right: 8px;"><v-icon icon="mdi-food-variant"></v-icon>    {{ category }}</span> <span style="margin-right: 8px;"><v-icon icon="mdi-timer"></v-icon>    {{ cookingTime }} min.</span><span style="margin-right: 8px;"><v-icon icon="mdi-heart"></v-icon>    {{ save_count }}</span></p>
                 </v-card-title>
                 <v-card-actions class="" style="background-color: rgba(55, 55, 55, 0.53);">
                     <v-btn @click="saveRecipe" variant="text" class="text-lg-right">Save recipe</v-btn>
@@ -122,9 +121,11 @@ const instructions = ref("");
 const owner = ref("");
 const ingredients = ref([{name: "", amount: 0, unit: ""}]);
 const avg_rating = ref(0);
+const save_count = ref(0);
 const comments = ref([{}]);
 const saved = ref(false);
 const image = ref("");
+const _id = ref("");
 
 const comment = ref("");
 const rating = ref(0);
@@ -143,11 +144,13 @@ serves.value = r.serves;
 description.value = r.description;
 instructions.value = r.instructions;
 owner.value = r.owner_id.username;
+_id.value = r.owner_id._id;
 ingredients.value = r.ingredients;
 avg_rating.value = r.avg_rating;
 comments.value = r.comments;
 image.value = r.image;
 saved.value = false;
+save_count.value = r.save_count;
 
 const snackbar = ref(false);
 const snackbarText = ref("");
@@ -159,6 +162,7 @@ async function postComment() {
     const token = localStorage.getItem("token");
     const decoded = jwtDecode(token!);
     const result = await axios.post("http://localhost:8000/api/recipes/comment", {user_id: decoded['id'], recipe_id: id, content: comment.value});
+    router.go(0);
 }
 
 async function saveRecipe() {
@@ -176,5 +180,6 @@ async function saveRecipe() {
 
 async function rateRecipe() {
     const result = await axios.post("http://localhost:8000/api/recipes/rate", {recipe_id: id, rating: rating.value});
+    router.go(0);
 }
 </script>

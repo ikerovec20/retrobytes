@@ -41,7 +41,7 @@ function goToLogin() {
 }
 
 function goToRegister() {
-    router.replace("/");
+    router.replace("/register");
 }
 
 </script>

@@ -14,13 +14,10 @@ router.get("/", async (req, res) => {
         const pageSize = req.query.pageSize ? req.query.pageSize : 8;
         const pageIndex = req.query.pageIndex ? req.query.pageIndex : 1;
         console.log(req.query);
-        const results = await Recipes.find().skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(8);
-        // const results = await Recipes.aggregate([ {$sample: {size: 8}}]);
-        // await Users.populate(results, {path: 'owner_id', select: {_id: 1, username: 1}});
+        const results = await Recipes.find().sort({created: -1}).skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(8);
 
-        const random = results.sort(() => Math.random() - 0.5);
 
-        res.json(random);
+        res.json(results);
         return;
     }
     catch (err) {
@@ -135,21 +132,9 @@ router.get("/search", async (req, res) => {
             }
         }
 
-        const results = await result.skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(pageSize as number);
+        const results = await result.sort({created: -1}).skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(pageSize as number);
 
-        // if (results) {
-        //     results.forEach((el) => {
-        //         let avg: number = 0;
-        //         let sum: number = 0;
-        //         el.rating.forEach((elem: number) => {
-        //             sum += elem;
-        //         });
-        //         el.avg_rating = sum != 0 ? sum / el.rating.length : 0; 
-        //     });
-        // }
-        const random = results.sort(() => Math.random() - 0.5);
-
-        res.json(random);
+        res.json(results);
         return;
     }
     catch (err) {
@@ -186,13 +171,6 @@ router.post("/", async (req, res) => {
             res.status(400).send("All fields are required");
             return;
         }
-        // const ingIds: Array<ObjectId> = [];
-        // for (let i = 0; i < ingredients.length; i++) {
-        //     const ing = new IngredientEntries({ingredient: ingredients[i].ingredient, amount: ingredients[i].amount, unit: ingredients[i].unit});
-        //     const id = await ing.save();
-        //     console.log(ing);
-        //     ingIds.push(ing._id);
-        // }
 
         const recipe = new Recipes({
             name: name,
@@ -209,6 +187,10 @@ router.post("/", async (req, res) => {
             comments: [],
             saves: [],
             image: image
+        });
+
+        ingredients.forEach(async (el: { name: any; }) => {
+            await Ingredients.findOneAndUpdate({name: el.name}, {name: el.name}, {upsert: true}) 
         });
 
         await recipe.save();

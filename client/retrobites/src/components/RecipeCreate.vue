@@ -88,6 +88,7 @@ import { ref } from 'vue';
 import { useUserStore } from '../stores/userStore';
 import { jwtDecode } from "jwt-decode";
 import { categories } from '../categories';
+import { useRouter } from 'vue-router';
 
 const name = ref("");
 const image = ref(0);
@@ -103,6 +104,8 @@ const ingredientCount = ref(0);
 const ingredientSuggestion = ref("");
 const ingredient = ref([""]);
 const ingredientId = new Map<string, string>();
+
+const router = useRouter();
 
 function addIngredient() {
     ingredients.value.push({amount: 1, name: "", unit: "", id: ""});
@@ -155,6 +158,7 @@ async function postRecipe() {
     }
 
     const result = await axios.post("http://localhost:8000/api/recipes/", recipe);
+    router.replace("/");
     console.log(result);
 }
 

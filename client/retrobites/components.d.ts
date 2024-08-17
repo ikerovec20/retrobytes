@@ -17,6 +17,7 @@ declare module 'vue' {
     RecipeCreate: typeof import('./src/components/RecipeCreate.vue')['default']
     RecipeSearch: typeof import('./src/components/RecipeSearch.vue')['default']
     RecipeView: typeof import('./src/components/RecipeView.vue')['default']
+    Register: typeof import('./src/components/Register.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
