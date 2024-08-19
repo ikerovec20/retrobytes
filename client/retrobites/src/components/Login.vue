@@ -45,7 +45,6 @@ async function submit() {
         console.log(result.status);
 
         if (typeof result.data !== typeof AxiosError) {
-            console.log("here");
             const userData = result.data;
             const store = useUserStore();
             store.username = username.value;

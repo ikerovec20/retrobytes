@@ -3,7 +3,6 @@ import mongoose, { Document, Schema, Types, mongo } from 'mongoose';
 export interface User extends Document {
     username: string,
     password: string,
-    saves: Types.ObjectId[],
     joined: Date
 }
 

@@ -56,8 +56,8 @@ import { RouterLink, useRouter } from 'vue-router';
     }
 
     function signOut() {
-        localStorage.removeItem("token");
-        router.push("/login");
+        localStorage.clear();
+        router.replace("/login");
     }
     
     function goToCreate() {

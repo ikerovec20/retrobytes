@@ -8,13 +8,9 @@ router.post("/login", async (req, res) => {
     try {
         const username = req.body.username;
         const password = req.body.password;
-        console.log(req.body);
-        console.log(username);
-        console.log(password);
         if (!(username || password)) {
             throw {status: 400, message: "Both fields are required."};
         }
-        console.log(username + " " + password);
         const user = await Users.findOne({username: username, password: password});
         console.log(user);
         if (user == null) {
@@ -47,8 +43,11 @@ router.post("/register", async (req, res) => {
             password: password
         });
 
+
         await newUser.save();
-        res.json(newUser);
+        const key = process.env.JWT_KEY!;
+        const token = jwt.sign({id: newUser.id, username: newUser.username}, key);
+        res.json(token);
     }
     catch(err) {
         console.log(err);

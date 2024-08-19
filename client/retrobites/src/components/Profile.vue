@@ -57,7 +57,7 @@
                 <h1>Recipes saved by {{ stats['username'] }}</h1>
             </v-col>
         </v-row>
-        <v-row class="justify-center">
+        <v-row>
              <v-col v-for="item in savedRecipes" class="v-col-4">
                 <v-card class="v-card" style="height: 200px">
                   <v-img :src="item['image']" aspect-ratio="16/9" cover>

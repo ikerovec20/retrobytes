@@ -10,11 +10,15 @@ export default router;
 
 router.get("/", async (req, res) => {
     try {
-        // const {pages, index} = req.query;
+
         const pageSize = req.query.pageSize ? req.query.pageSize : 8;
         const pageIndex = req.query.pageIndex ? req.query.pageIndex : 1;
         console.log(req.query);
-        const results = await Recipes.find().sort({created: -1}).skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(8);
+        const results = await Recipes.find()
+        .sort({created: -1})
+        .skip((pageIndex as number - 1) * (pageSize as number))
+        .populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}})
+        .limit(8);
 
 
         res.json(results);
@@ -27,11 +31,13 @@ router.get("/", async (req, res) => {
 
 router.get("/featured", async (req, res) => {
     try {
-        // const results = await Recipes.find().skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(8);
 
         const date = new Date();
         date.setDate(date.getDate() - 3);
-        const result = await Recipes.find({created: {$gte: date}}).sort({avg_rating: -1}).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(1);
+        const result = await Recipes.find({created: {$gte: date}})
+        .sort({avg_rating: -1})
+        .populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}})
+        .limit(1);
 
 
         res.json(result);
@@ -44,8 +50,6 @@ router.get("/featured", async (req, res) => {
 
 router.get("/similar", async (req, res) => {
     try {
-        // const results = await Recipes.find().skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(8);
-
         const date = new Date();
         date.setDate(date.getDate() - 3);
         const result = await Recipes.find({created: {$gte: date}}).sort({avg_rating: -1}).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(1);
@@ -61,7 +65,6 @@ router.get("/similar", async (req, res) => {
 
 router.get("/search", async (req, res) => {
     try {
-        // const {pages, index} = req.query;
         const pageSize = req.query.pageSize ? req.query.pageSize : 8;
         const pageIndex = req.query.pageIndex ? req.query.pageIndex : 1;
         
@@ -76,8 +79,6 @@ router.get("/search", async (req, res) => {
 
         console.log(req.query);
         
-        // const results = await Recipes.aggregate([ {$sample: {size: 8}}]);
-        // await Users.populate(results, {path: 'owner_id', select: {_id: 1, username: 1}});
         let result;
         if (name != undefined && name != "") {
             result = Recipes.find({ name:  {$regex: new RegExp(name!, "i")}});
@@ -132,7 +133,11 @@ router.get("/search", async (req, res) => {
             }
         }
 
-        const results = await result.sort({created: -1}).skip((pageIndex as number - 1) * (pageSize as number)).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).limit(pageSize as number);
+        const results = await result
+        .sort({created: -1})
+        .skip((pageIndex as number - 1) * (pageSize as number))
+        .populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}})
+        .limit(pageSize as number);
 
         res.json(results);
         return;
@@ -148,13 +153,7 @@ router.get("/:id", async (req, res) => {
 
         const results = await Recipes.findById(id).populate<{owner_id: User}>({path: 'owner_id', select: {_id: 1, username: 1}}).populate<{comments: Comment}>({path: 'comments', populate: {path: 'user_id', select: {username: 1}}});
         console.log(results?.owner_id.username);
-        // if (results) {
-        //     let sum: number = 0;
-        //     results.rating.forEach((el) => {
-        //         sum += el;
-        //     });
-        //     results.avg_rating = sum != 0 ? sum / results.rating.length : 0; 
-        // }
+
         res.json(results);
         return;
     }
@@ -227,7 +226,7 @@ router.post("/save", async (req, res) => {
             return;
         }
         recipe.saves.push(user_id);
-        // await recipe.save();
+
         await recipe.save();
         await recipe.updateOne([{$set: {
             save_count: {$size: "$saves"}
@@ -257,7 +256,7 @@ router.post("/rate", async (req, res) => {
     await recipe.updateOne([{$set: {
         avg_rating: {$avg: "$rating"}
     }}]);
-    // await recipe.save();
+
         res.status(200).send("Success");
     }
     catch (err) {
@@ -288,7 +287,7 @@ router.post("/comment", async (req, res) => {
         console.log(newComment);
         recipe.comments.push(newComment._id);
         await recipe.save();
-        // await Recipes.updateOne({recipe});
+
         res.status(200).send("Success");
     }
     catch (err) {
