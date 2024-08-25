@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
     res.send('Welcome!');
 });
 
-await mongoose.connect("mongodb://127.0.0.1:27017/cookbookProd").then(() => {console.log("MongoDB connected!")}).catch((err) => console.log(err));
+await mongoose.connect("mongodb://127.0.0.1:27017/cookbook").then(() => {console.log("MongoDB connected!")}).catch((err) => console.log(err));
 
 server.listen(port, () => {
     console.log("Server started listening on port " + port);

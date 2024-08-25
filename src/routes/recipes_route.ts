@@ -4,6 +4,8 @@ import { Comment, Comments } from "../db/schemas/comment.js";
 import { Ingredient, Ingredients } from "../db/schemas/ingredient.js";
 import mongoose, { ObjectId } from 'mongoose';
 import { User, Users } from "../db/schemas/user.js";
+import fs from "fs";
+import path from "path";
 
 const router = Router();
 export default router;
@@ -165,11 +167,11 @@ router.get("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
     try {
         const {name, tags, cooking_time, instructions, owner_id, ingredients, serves, category, description, image} = req.body;
-        console.log(category);
         if (!(name && tags && cooking_time && instructions && owner_id && ingredients)) {
             res.status(400).send("All fields are required");
             return;
         }
+
 
         const recipe = new Recipes({
             name: name,

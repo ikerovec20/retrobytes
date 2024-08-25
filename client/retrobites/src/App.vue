@@ -2,7 +2,7 @@
   <v-app>
     <v-main>
       <v-container>
-          <RouterView></RouterView>
+          <RouterView :key="$route.fullPath"></RouterView>
       </v-container>
       <Footer></Footer>
     </v-main>

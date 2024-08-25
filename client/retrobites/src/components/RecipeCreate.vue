@@ -14,9 +14,6 @@
                         <v-col>
                             <v-text-field v-model="name" label="Recipe Name"></v-text-field>
                         </v-col>
-                        <v-col>
-                            <v-file-input label="Upload Image"></v-file-input>
-                        </v-col>
                     </v-row>
                     <v-row>
                         <v-col>
@@ -43,8 +40,8 @@
                     <v-row>
                         <v-col>
                             <h2>Ingredients</h2>
-                            <v-btn variant="outlined" style="margin: 4px" @click="removeIngredient">-</v-btn>
-                            <v-btn variant="outlined" style="margin: 4px" @click="addIngredient">+</v-btn>
+                            <v-btn variant="outlined" icon="mdi-minus" style="margin: 4px" @click="removeIngredient"></v-btn>
+                            <v-btn variant="outlined" icon="mdi-plus" style="margin: 4px" @click="addIngredient"></v-btn>
                         </v-col>
                     </v-row>
                     <v-row v-for="item in ingredients">
@@ -91,7 +88,7 @@ import { categories } from '../categories';
 import { useRouter } from 'vue-router';
 
 const name = ref("");
-const image = ref(0);
+const image = ref();
 const category = ref("");
 const tags = ref([]);
 const cookingTime = ref(0);
@@ -143,7 +140,7 @@ async function postRecipe() {
     console.log(category.value);
     const decoded = jwtDecode(token!);
     console.log(decoded['id']);
-    const image = await axios.get("https://foodish-api.com/api/");
+    const imageLink = await axios.get("https://foodish-api.com/api/");
     const recipe = {
         name: name.value,
         tags: tags.value,
@@ -154,7 +151,7 @@ async function postRecipe() {
         serves: serves.value,
         category: category.value,
         description: description.value,
-        image: image.data.image
+        image: imageLink.data.image
     }
 
     const result = await axios.post("http://localhost:8000/api/recipes/", recipe);
