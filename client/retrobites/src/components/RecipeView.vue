@@ -83,7 +83,7 @@
             <v-col>
                 <v-card class="fill-height">
                 <v-card-title>
-                    <p>{{ com['user_id']['username'] }}<p style="float: right">{{ com['timestamp'] }}</p></p>
+                    <p>{{ com['user_id']['username'] }}<p style="float: right">{{ getTimestamp(com['timestamp']) }}</p></p>
                     
                 </v-card-title>
                 <v-card-text>
@@ -176,6 +176,11 @@ async function saveRecipe() {
         snackbarText.value = "Removed from saves.";
     }
     snackbar.value = true;
+}
+
+function getTimestamp(text) {
+    const date = new Date(text);
+    return date.toDateString();
 }
 
 async function rateRecipe() {

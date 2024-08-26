@@ -22,7 +22,7 @@
             </v-col>
         </v-row>
     
-        <v-row class="justify-center">
+        <v-row>
              <v-col v-for="item in recipes" class="v-col-6">
                 <v-card class="v-card" style="height: 240px">
                   <v-img :src="item['image']" aspect-ratio="16/9" cover>
